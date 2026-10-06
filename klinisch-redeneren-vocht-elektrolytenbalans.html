@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Klinisch redeneren – Vocht- en elektrolytenbalans</title>
+<style>
+:root{
+  --bg:#f6f8fb;--card:#fff;--ink:#17202a;--muted:#667085;--line:#d9e0e8;
+  --accent:#2457a7;--accent2:#eaf1fb;--ok:#137a4c;--bad:#a33a3a;--warn:#8a6515;
+  --radius:18px;--shadow:0 10px 30px rgba(15,23,42,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+button,input,select{font:inherit}
+a{color:var(--accent)}
+header{background:linear-gradient(135deg,#17386d,#275fae);color:#fff;padding:28px 20px 34px}
+.wrap{max-width:1120px;margin:0 auto}
+.kicker{font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;opacity:.85}
+h1{font-size:clamp(2rem,5vw,3.8rem);line-height:1.05;margin:.35rem 0 .8rem}
+header p{max-width:760px;margin:0;font-size:1.08rem;opacity:.94}
+.nav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;gap:8px;overflow:auto;padding:10px 16px}
+.nav button{white-space:nowrap;border:0;background:transparent;padding:9px 12px;border-radius:999px;cursor:pointer;color:#344054}
+.nav button:hover,.nav button:focus{background:var(--accent2);outline:2px solid transparent}
+main{padding:24px 16px 56px}
+section{scroll-margin-top:76px;margin:0 auto 28px;max-width:1120px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+.grid{display:grid;gap:18px}
+.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:800px){.grid.two,.grid.three{grid-template-columns:1fr}}
+h2{font-size:clamp(1.5rem,3vw,2.25rem);margin:0 0 10px}
+h3{margin:0 0 8px}
+.muted{color:var(--muted)}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent2);color:var(--accent);padding:5px 10px;border-radius:999px;font-weight:700;font-size:.85rem}
+.progress{height:10px;background:#e6e9ef;border-radius:999px;overflow:hidden;margin-top:14px}
+.progress span{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+.goal-list{margin:10px 0 0;padding-left:1.2rem}
+.interaction{border:1px solid var(--line);border-radius:16px;padding:18px;background:#fcfdff}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:1px solid #b8c7dc;background:#fff;color:#17386d;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:hover{filter:brightness(.98)}
+.btn:focus,input:focus,select:focus{outline:3px solid rgba(36,87,167,.2);outline-offset:2px}
+.feedback{margin-top:12px;padding:12px 14px;border-radius:12px;background:#f4f6f8;border-left:4px solid #98a2b3}
+.feedback.ok{background:#eefaf4;border-left-color:var(--ok)}
+.feedback.bad{background:#fff3f2;border-left-color:var(--bad)}
+.feedback.warn{background:#fff9e8;border-left-color:var(--warn)}
+.hidden{display:none!important}
+.range-row{display:grid;grid-template-columns:160px 1fr 90px;gap:12px;align-items:center;margin:10px 0}
+@media(max-width:650px){.range-row{grid-template-columns:1fr}}
+.compartment-shell{display:grid;grid-template-columns:2fr 1fr;gap:12px;min-height:260px}
+.compartment{border:2px solid #9fb3ce;border-radius:20px;padding:14px;display:flex;flex-direction:column;justify-content:center;text-align:center;cursor:pointer;background:#f7faff}
+.compartment.small{min-height:120px}
+.compartment:hover{background:#eef5ff}
+.meter{height:22px;background:#e8edf3;border-radius:12px;overflow:hidden;margin:8px 0}
+.meter span{display:block;height:100%;background:#6f91c4;transition:width .3s}
+.osmosis{display:grid;grid-template-columns:1fr 70px 1fr;align-items:center;gap:12px}
+.chamber{border:2px solid #9fb3ce;border-radius:18px;min-height:180px;padding:16px;background:#f8fbff;position:relative}
+.membrane{text-align:center;font-size:2rem;color:#63758f}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:#496f9f;margin:3px}
+.water{font-size:1.25rem}
+.arrow{font-size:2rem;text-align:center;min-height:42px}
+.case-data{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.case-data div{background:#f7f8fb;border:1px solid var(--line);border-radius:12px;padding:10px}
+@media(max-width:750px){.case-data{grid-template-columns:repeat(2,1fr)}}
+.choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px}
+.choice-grid button{text-align:left}
+.result-box{font-size:1.1rem;font-weight:700;background:#f7f9fc;border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.flow .node{background:#fff;border:1px solid var(--line);padding:10px 12px;border-radius:12px}
+.flow .arr{color:#667085}
+.table-wrap{overflow:auto}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#f7f8fb}
+.callout{border-left:4px solid var(--accent);padding:10px 14px;background:#f6f9ff;border-radius:10px}
+footer{padding:28px 16px 50px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kicker">Klinisch redeneren anesthesie • bijeenkomst 6</div>
+    <h1 id="lesson-title"></h1>
+    <p id="lesson-subtitle"></p>
+    <div class="progress" aria-label="Voortgang"><span id="progressBar"></span></div>
+  </div>
+</header>
+
+<nav class="nav"><div class="wrap" id="nav"></div></nav>
+
+<main>
+<section id="start"><div class="card">
+  <span class="badge">Start</span>
+  <h2>Leerdoelen</h2>
+  <ul class="goal-list" id="goals"></ul>
+  <p class="callout"><strong>Werkwijze:</strong> voorspel eerst, voer daarna de interactie uit en gebruik de feedback om je redenering te controleren.</p>
+</div></section>
+
+<section id="compartimenten"><div class="card">
+  <span class="badge">1 • Lichaamswater</span><h2>Waar zit het water?</h2>
+  <p class="muted">Pas het lichaamsgewicht aan en klik daarna op een compartiment.</p>
+  <div class="range-row"><label for="weight">Lichaamsgewicht</label><input id="weight" type="range" min="40" max="120" value="60"><output id="weightOut">60 kg</output></div>
+  <div class="compartment-shell">
+    <div class="compartment" data-comp="icf"><h3>Intracellulair</h3><div class="meter"><span id="icfBar"></span></div><strong id="icfVol"></strong></div>
+    <div class="grid">
+      <div class="compartment small" data-comp="plasma"><h3>Plasma</h3><strong id="plasmaVol"></strong></div>
+      <div class="compartment small" data-comp="interstitium"><h3>Interstitium</h3><strong id="interVol"></strong></div>
+    </div>
+  </div>
+  <div id="compFeedback" class="feedback">Klik op een compartiment voor uitleg.</div>
+</div></section>
+
+<section id="osmose"><div class="card">
+  <span class="badge">2 • Osmose</span><h2>Voorspel de waterverplaatsing</h2>
+  <p>De linkerkamer is relatief hypotoon en de rechterkamer relatief hypertoon. Wat doet water?</p>
+  <div class="osmosis">
+    <div class="chamber"><h3>Hypotoon</h3><div class="water">💧 💧 💧 💧</div><div class="dots"></div></div>
+    <div><div class="membrane">║</div><div id="osmosisArrow" class="arrow">?</div></div>
+    <div class="chamber"><h3>Hypertoon</h3><div class="water">💧 💧</div><div class="dots"></div></div>
+  </div>
+  <div class="choice-grid" id="osmosisChoices"></div>
+  <div id="osmosisFeedback" class="feedback">Kies eerst een voorspelling.</div>
+</div></section>
+
+<section id="volume"><div class="card">
+  <span class="badge">3 • Circulerend volume</span><h2>Wat gebeurt er gedurende de operatie?</h2>
+  <p>Gebaseerd op het klassikale voorbeeld uit de bronles. Doorloop de gebeurtenissen één voor één.</p>
+  <div class="case-data" id="volumeCase"></div>
+  <div class="result-box">Geschat circulerend bloedvolume: <span id="bloodVolume"></span></div>
+  <div class="choice-grid" id="volumeChoices"></div>
+  <div id="volumeFeedback" class="feedback">Start met gebeurtenis 1.</div>
+  <div class="controls" style="margin-top:12px"><button class="btn primary" id="nextVolume">Volgende gebeurtenis</button><button class="btn" id="resetVolume">Opnieuw</button></div>
+</div></section>
+
+<section id="microcirculatie"><div class="card">
+  <span class="badge">4 • Microcirculatie</span><h2>Volg de oorzaak-gevolgketen</h2>
+  <p>Klik stap voor stap door de fysiologische keten uit de les.</p>
+  <div class="flow" id="microFlow"></div>
+  <div class="controls" style="margin-top:14px"><button class="btn primary" id="revealMicro">Volgende stap</button><button class="btn" id="resetMicro">Reset</button></div>
+  <div id="microFeedback" class="feedback">Begin bij circulatoire insufficiëntie.</div>
+</div></section>
+
+<section id="vochtcalculator"><div class="card">
+  <span class="badge">5 • Vochtbehoefte</span><h2>Perioperatieve vochtcalculator</h2>
+  <p class="muted">De rekenregels volgen de bronpresentatie. Vul eerst je eigen schatting in.</p>
+  <div class="grid two">
+    <div class="interaction">
+      <label>Gewicht (kg)<input id="calcWeight" type="number" value="70" min="1" style="width:100%;padding:10px;margin-top:5px"></label><br><br>
+      <label>Duur operatie (uur)<input id="calcHours" type="number" value="2" min="0" step=".5" style="width:100%;padding:10px;margin-top:5px"></label><br><br>
+      <label>Omvang ingreep<select id="surgerySize" style="width:100%;padding:10px;margin-top:5px"><option value="1.5">Klein (1–2 ml/kg/uur)</option><option value="4">Middelgroot (3–5 ml/kg/uur)</option><option value="7.5">Groot (5–10 ml/kg/uur)</option></select></label><br><br>
+      <label>Eigen schatting totaal (ml)<input id="ownEstimate" type="number" placeholder="bijv. 1200" style="width:100%;padding:10px;margin-top:5px"></label>
+    </div>
+    <div class="interaction">
+      <h3>Berekening</h3>
+      <div id="fluidResult" class="feedback">Vul je schatting in en klik op berekenen.</div>
+      <button class="btn primary" id="calcFluid">Bereken</button>
+    </div>
+  </div>
+</div></section>
+
+<section id="bloedverlies"><div class="card">
+  <span class="badge">6 • Bloedverlies</span><h2>Acceptabel bloedverlies</h2>
+  <p>Formule uit de bronles: gewicht × 70 × (actueel Ht − acceptabel Ht) / actueel Ht.</p>
+  <div class="grid two">
+    <div class="interaction">
+      <label>Gewicht (kg)<input id="ablWeight" type="number" value="70" style="width:100%;padding:10px;margin-top:5px"></label><br><br>
+      <label>Actueel Ht (%)<input id="htActual" type="number" value="40" style="width:100%;padding:10px;margin-top:5px"></label><br><br>
+      <label>Acceptabel Ht (%)<input id="htAccept" type="number" value="28" style="width:100%;padding:10px;margin-top:5px"></label>
+    </div>
+    <div class="interaction">
+      <p><strong>Voorspel eerst:</strong> hoeveel bloedverlies verwacht je ongeveer dat acceptabel is?</p>
+      <input id="ablEstimate" type="number" placeholder="ml" style="width:100%;padding:10px">
+      <div id="ablResult" class="feedback">Nog niet berekend.</div>
+      <button class="btn primary" id="calcAbl">Bereken</button>
+    </div>
+  </div>
+</div></section>
+
+<section id="vloeistofkeuze"><div class="card">
+  <span class="badge">7 • Infuusvloeistoffen</span><h2>Kies de interventie</h2>
+  <p>Kies per doel welke categorie uit de bronles het best aansluit.</p>
+  <div id="fluidScenario" class="interaction"></div>
+  <div class="choice-grid" id="fluidChoices"></div>
+  <div id="fluidFeedback" class="feedback">Kies een vloeistofcategorie.</div>
+  <div class="controls" style="margin-top:12px"><button class="btn" id="nextFluidScenario">Volgende situatie</button></div>
+</div></section>
+
+<section id="transfusie"><div class="card">
+  <span class="badge">8 • Bloedproducten</span><h2>Herken de transfusiereactie</h2>
+  <div id="transfusionScenario" class="interaction"></div>
+  <div class="choice-grid" id="transfusionChoices"></div>
+  <div id="transfusionFeedback" class="feedback">Kies het meest passende begrip uit de bronles.</div>
+  <div class="controls" style="margin-top:12px"><button class="btn" id="nextTransfusion">Volgende scenario</button></div>
+</div></section>
+
+<section id="eindcasus"><div class="card">
+  <span class="badge">Eindcasus</span><h2>Integreer je klinische redenering</h2>
+  <div id="caseStage" class="interaction"></div>
+  <div class="choice-grid" id="caseChoices"></div>
+  <div id="caseFeedback" class="feedback">Kies de volgende redeneerstap.</div>
+  <div class="controls" style="margin-top:12px"><button class="btn primary" id="nextCase">Volgende fase</button><button class="btn" id="resetCase">Opnieuw</button></div>
+</div></section>
+
+<section><div class="card">
+  <h2>Bronkader van deze les</h2>
+  <p class="muted">Deze interactieve versie gebruikt de inhoud en rekenregels uit de aangeleverde PowerPoint. Inhoudelijke actualisatie of externe verificatie is bewust niet stilzwijgend toegepast.</p>
+  <div class="table-wrap"><table id="summaryTable"></table></div>
+</div></section>
+</main>
+
+<footer>Standalone HTML • geen externe libraries • geschikt voor lokaal gebruik en GitHub Pages</footer>
+
+<script>
+const lessonData = {
+  meta:{
+    title:"Vocht- en elektrolytenbalans",
+    subtitle:"Interactieve les Klinisch Redeneren Anesthesie — van compartimenten en osmose naar perioperatieve volumestatus, infuusvloeistoffen en bloedproducten."
+  },
+  goals:[
+    "De klinische aandachtspunten benoemen en uitleggen met betrekking tot de vocht- en elektrolytenbalans.",
+    "Bij een ASA I–II-patiënt die een laagcomplexe ingreep ondergaat een klinische redenering opzetten met behulp van redeneerhulpen.",
+    "Vochtverdeling, volumestatus, perioperatieve vochtbehoefte en acceptabel bloedverlies toepassen in eenvoudige berekeningen.",
+    "Eigenschappen van infuusvloeistoffen en bloedproducten koppelen aan een klinisch doel."
+  ],
+  compartments:{
+    totalWaterPct:.60, icfPct:.40, ecfPct:.20, plasmaPct:.04, interstitialPct:.15, transcellularPct:.01,
+    notes:{
+      icf:"In de bronles wordt ongeveer 40% van het lichaamsgewicht als intracellulair water beschreven.",
+      plasma:"In de bronles wordt ongeveer 4% van het lichaamsgewicht als plasma beschreven.",
+      interstitium:"In de bronles wordt ongeveer 15% van het lichaamsgewicht als interstitieel volume beschreven."
+    }
+  },
+  osmosis:{
+    options:[
+      {label:"Water beweegt naar de hypertone zijde",correct:true,feedback:"Juist. In de bronles wordt osmose beschreven als diffusie van water van een hypotone naar een hypertone vloeistof via een selectief permeabel membraan."},
+      {label:"Water beweegt naar de hypotone zijde",correct:false,feedback:"Niet juist. Vergelijk de concentratie opgeloste stoffen opnieuw: water beweegt volgens de bronles richting de relatief hypertone zijde."},
+      {label:"Er is geen netto waterverplaatsing",correct:false,feedback:"Niet juist bij een verschil in toniciteit. Geen netto verplaatsing past bij een isotone situatie."}
+    ]
+  },
+  volumeCase:{
+    weight:60,
+    events:[
+      {name:"Start",delta:0,display:"Preoperatief",reason:"Uitgangssituatie: 60 kg × 70 ml/kg."},
+      {name:"Bloedverlies",delta:-2500,display:"− 2500 ml bloedverlies",reason:"Direct verlies uit het circulerend bloedvolume."},
+      {name:"Urine",delta:-700,display:"− 700 ml urine",reason:"Verlies uit de vochtbalans."},
+      {name:"Verdamping",delta:-360,display:"− 360 ml/uur volgens bronvoorbeeld",reason:"In de bronpresentatie wordt bij het voorbeeld een verdampingsverlies genoemd."},
+      {name:"Ringerlactaat",delta:1000,display:"+ 3000 ml Ringerlactaat → 1000 ml intravasculair volgens bronvoorbeeld",reason:"Het bronvoorbeeld rekent 3/9 intravasculair."},
+      {name:"Voluven",delta:1000,display:"+ 1000 ml Voluven → 1000 ml intravasculair volgens bronvoorbeeld",reason:"Het bronvoorbeeld rekent 9/9 intravasculair."}
+    ]
+  },
+  microFlow:[
+    "Circulatoire insufficiëntie",
+    "Minder bloed naar vitale organen",
+    "Verminderde capillaire uitwisseling",
+    "Anaerobe verbranding",
+    "Compensatiemechanismen raken uitgeput",
+    "MAP daalt"
+  ],
+  fluidCalc:{basalMin:1,basalMax:2},
+  fluids:[
+    {scenario:"Normale verliezen in de vochtbalans opvangen.",answer:"Kristalloïd",feedback:"Volgens de bronles worden kristalloïden gebruikt om normale verliezen in de vochtbalans op te vangen en verspreiden zij zich gemakkelijk over lichaamscompartimenten."},
+    {scenario:"Volumetekort aanvullen met nadruk op volume-effect.",answer:"Colloïd",feedback:"De bronles noemt bij colloïden onder meer volume-effect en het aanvullen van ontstaan bloedverlies."},
+    {scenario:"Ernstige of levensbedreigende bloeding met stollingsproblematiek.",answer:"FFP",feedback:"De bronles noemt FFP bij onder andere ernstige of levensbedreigende bloedingen en complexe tekorten aan stollingsfactoren."}
+  ],
+  transfusion:[
+    {scenario:"Tijdens of na transfusie ontstaat acuut niet-cardiogeen longoedeem met hypoxie.",answer:"TRALI",feedback:"Dit past bij de omschrijving van TRALI in de bronpresentatie."},
+    {scenario:"Tijdens transfusie stijgt de temperatuur meer dan 2 °C.",answer:"Koortsreactie",feedback:"Koortsreacties met temperatuurstijging >2 °C worden in de bronles genoemd als acute transfusiereactie."},
+    {scenario:"Na transfusie ontstaat een allergisch beeld.",answer:"Allergische reactie",feedback:"Allergische reacties staan in de bronles tussen de acute transfusiereacties."}
+  ],
+  finalCase:[
+    {
+      title:"Fase 1 — Preoperatief",
+      text:"Een ASA II-patiënt van 72 kg komt nuchter voor een laagcomplexe abdominale ingreep. Wat is de eerste relevante redeneerstap?",
+      options:["Direct een bloedproduct kiezen","Eerst volumestatus en te verwachten verliezen beoordelen","Alleen het hematocriet beoordelen"],
+      correct:1,
+      feedback:"Juist: begin met beoordelen van volumestatus en relevante verliezen voordat je een interventie kiest."
+    },
+    {
+      title:"Fase 2 — Tijdens de ingreep",
+      text:"De bloeddruk daalt. Welke redenering sluit het best aan bij de les?",
+      options:["Lage bloeddruk betekent altijd hypovolemie","Beoordeel eerst het gehele klinische beeld en de volumestatus","Geef zonder verdere beoordeling colloïd"],
+      correct:1,
+      feedback:"De les draait om klinisch redeneren: een losse waarde moet in samenhang worden beoordeeld."
+    },
+    {
+      title:"Fase 3 — Verlies",
+      text:"Bloedverlies en urineproductie nemen toe. Wat moet je nu expliciet meenemen?",
+      options:["Alleen lichaamsgewicht","Circulerend volume, verliezen en toegediende vloeistoffen","Alleen soort operatie"],
+      correct:1,
+      feedback:"De balans tussen uitgangsvolume, verliezen en toediening staat centraal."
+    },
+    {
+      title:"Fase 4 — Interventie",
+      text:"Je kiest een vloeistof. Welke vraag hoort vóór de keuze?",
+      options:["Welke zak staat het dichtstbij?","Welk fysiologisch probleem wil ik corrigeren?","Welke vloeistof heeft de mooiste kleur?"],
+      correct:1,
+      feedback:"De interventie hoort gekoppeld te zijn aan het fysiologische probleem."
+    },
+    {
+      title:"Fase 5 — Evaluatie",
+      text:"Na de interventie moet je opnieuw beoordelen. Wat is de beste vervolgstap?",
+      options:["Effect op klinische parameters en perfusie evalueren","De casus beëindigen zodra vocht is toegediend","Alleen de infuuspomp controleren"],
+      correct:0,
+      feedback:"Klinisch redeneren eindigt met evaluatie van het effect van de interventie."
+    }
+  ],
+  summary:[
+    ["Lichaamswater","±60% lichaamsgewicht"],
+    ["Intracellulair","±40% lichaamsgewicht"],
+    ["Extracellulair","±20% lichaamsgewicht"],
+    ["Plasma","±4% lichaamsgewicht"],
+    ["Interstitium","±15% lichaamsgewicht"],
+    ["Circulerend bloedvolume volwassene","70 ml/kg"],
+    ["Basale intraoperatieve vochtbehoefte","1–2 ml/kg/uur"],
+    ["Acceptabel bloedverlies","gewicht × 70 × (actueel Ht − acceptabel Ht) / actueel Ht"]
+  ]
+};
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+function setFeedback(el,msg,type=""){el.className="feedback"+(type?" "+type:"");el.textContent=msg}
+function markProgress(){
+  const completed = ["osmoseFeedback","volumeFeedback","microFeedback","fluidResult","ablResult","fluidFeedback","transfusionFeedback","caseFeedback"]
+    .filter(id=>{const t=$("#"+id)?.textContent||""; return /Juist|Berekening|Afgerond|Resultaat|voltooid|Bronregel|Totaal|fase/i.test(t)}).length;
+  $("#progressBar").style.width = Math.min(100, completed/8*100)+"%";
+}
+
+$("#lesson-title").textContent=lessonData.meta.title;
+$("#lesson-subtitle").textContent=lessonData.meta.subtitle;
+lessonData.goals.forEach(g=>$("#goals").insertAdjacentHTML("beforeend",`<li>${g}</li>`));
+
+const navItems=[
+  ["start","Start"],["compartimenten","1 Compartimenten"],["osmose","2 Osmose"],["volume","3 Volume"],
+  ["microcirculatie","4 Microcirculatie"],["vochtcalculator","5 Vocht"],["bloedverlies","6 Bloedverlies"],
+  ["vloeistofkeuze","7 Vloeistoffen"],["transfusie","8 Transfusie"],["eindcasus","Eindcasus"]
+];
+navItems.forEach(([id,label])=>{
+  const b=document.createElement("button");b.textContent=label;b.onclick=()=>document.getElementById(id).scrollIntoView({behavior:"smooth"});
+  $("#nav").appendChild(b);
+});
+
+// Compartimenten
+function renderCompartments(){
+  const w=+$("#weight").value;
+  $("#weightOut").textContent=w+" kg";
+  $("#icfVol").textContent=(w*lessonData.compartments.icfPct).toFixed(1)+" L";
+  $("#plasmaVol").textContent=(w*lessonData.compartments.plasmaPct).toFixed(1)+" L";
+  $("#interVol").textContent=(w*lessonData.compartments.interstitialPct).toFixed(1)+" L";
+  $("#icfBar").style.width="67%";
+}
+$("#weight").addEventListener("input",renderCompartments);
+$$("[data-comp]").forEach(el=>el.onclick=()=>setFeedback($("#compFeedback"),lessonData.compartments.notes[el.dataset.comp],"ok"));
+renderCompartments();
+
+// Osmose
+lessonData.osmosis.options.forEach((o,i)=>{
+  const b=document.createElement("button");b.className="btn";b.textContent=o.label;
+  b.onclick=()=>{
+    $("#osmosisArrow").textContent=o.correct?"→":"?";
+    setFeedback($("#osmosisFeedback"),o.feedback,o.correct?"ok":"bad");markProgress();
+  };
+  $("#osmosisChoices").appendChild(b);
+});
+
+// Volume
+let volumeIndex=0, currentVolume=lessonData.volumeCase.weight*70;
+$("#bloodVolume").textContent=currentVolume+" ml";
+function renderVolumeEvent(){
+  const ev=lessonData.volumeCase.events[volumeIndex];
+  $("#volumeCase").innerHTML=`<div><strong>Gewicht</strong><br>${lessonData.volumeCase.weight} kg</div><div><strong>Gebeurtenis</strong><br>${ev.display}</div><div><strong>Stap</strong><br>${volumeIndex+1}/${lessonData.volumeCase.events.length}</div><div><strong>Huidige schatting</strong><br>${Math.max(0,currentVolume)} ml</div>`;
+  $("#volumeChoices").innerHTML="";
+  if(volumeIndex===0){setFeedback($("#volumeFeedback"),"Uitgangssituatie: bereken eerst 60 × 70 ml/kg.","ok");return;}
+  ["neemt af","blijft ongeveer gelijk","neemt toe"].forEach(label=>{
+    const b=document.createElement("button");b.className="btn";b.textContent=label;
+    b.onclick=()=>{
+      const ev=lessonData.volumeCase.events[volumeIndex];
+      const correct=(ev.delta<0&&label==="neemt af")||(ev.delta>0&&label==="neemt toe")||(ev.delta===0&&label==="blijft ongeveer gelijk");
+      setFeedback($("#volumeFeedback"),(correct?"Juist. ":"Kijk opnieuw naar de richting van deze balanspost. ")+ev.reason,correct?"ok":"bad");
+      markProgress();
+    };
+    $("#volumeChoices").appendChild(b);
+  });
+}
+$("#nextVolume").onclick=()=>{
+  if(volumeIndex<lessonData.volumeCase.events.length-1){
+    volumeIndex++;
+    currentVolume+=lessonData.volumeCase.events[volumeIndex].delta;
+    renderVolumeEvent();
+  } else setFeedback($("#volumeFeedback"),"Deze reeks is afgerond. Bespreek nu welke aannames in deze eenvoudige bronberekening zitten.","ok");
+};
+$("#resetVolume").onclick=()=>{volumeIndex=0;currentVolume=lessonData.volumeCase.weight*70;renderVolumeEvent()};
+renderVolumeEvent();
+
+// Micro
+let microIndex=0;
+function renderMicro(){
+  $("#microFlow").innerHTML=lessonData.microFlow.slice(0,microIndex+1).map((x,i)=>`<span class="node">${x}</span>${i<microIndex?'<span class="arr">→</span>':''}`).join("");
+}
+$("#revealMicro").onclick=()=>{if(microIndex<lessonData.microFlow.length-1){microIndex++;renderMicro();setFeedback($("#microFeedback"),"Volgende stap zichtbaar. Verbind deze stap causaal met de vorige.","ok")}else setFeedback($("#microFeedback"),"Keten voltooid.","ok");markProgress()};
+$("#resetMicro").onclick=()=>{microIndex=0;renderMicro();setFeedback($("#microFeedback"),"Begin bij circulatoire insufficiëntie.")};
+renderMicro();
+
+// fluid calculator
+$("#calcFluid").onclick=()=>{
+  const w=+$("#calcWeight").value,h=+$("#calcHours").value,third=+$("#surgerySize").value,est=+$("#ownEstimate").value||0;
+  const basalLow=w*h*1, basalHigh=w*h*2, tissue=w*h*third;
+  const low=basalLow+tissue, high=basalHigh+tissue;
+  setFeedback($("#fluidResult"),`Bronberekening: basaal ${basalLow.toFixed(0)}–${basalHigh.toFixed(0)} ml + verlies naar 'derde ruimte' volgens gekozen broncategorie ≈ ${tissue.toFixed(0)} ml. Totaal ≈ ${low.toFixed(0)}–${high.toFixed(0)} ml. Jouw schatting: ${est||"niet ingevuld"} ml.`,"ok");markProgress();
+};
+
+// ABL
+$("#calcAbl").onclick=()=>{
+  const w=+$("#ablWeight").value,a=+$("#htActual").value,b=+$("#htAccept").value,e=+$("#ablEstimate").value||0;
+  const abl=w*70*((a-b)/a);
+  setFeedback($("#ablResult"),`Resultaat volgens bronformule: circa ${abl.toFixed(0)} ml. Jouw voorspelling: ${e||"niet ingevuld"} ml.`,"ok");markProgress();
+};
+
+// fluid scenarios
+let fluidIndex=0;
+function renderFluidScenario(){
+  const sc=lessonData.fluids[fluidIndex];
+  $("#fluidScenario").innerHTML=`<h3>Situatie ${fluidIndex+1}</h3><p>${sc.scenario}</p>`;
+  $("#fluidChoices").innerHTML="";
+  ["Kristalloïd","Colloïd","FFP"].forEach(opt=>{
+    const b=document.createElement("button");b.className="btn";b.textContent=opt;
+    b.onclick=()=>setFeedback($("#fluidFeedback"),(opt===sc.answer?"Juist. ":"Niet de beste match binnen de bronles. ")+sc.feedback,opt===sc.answer?"ok":"bad");
+    $("#fluidChoices").appendChild(b);
+  });
+}
+$("#nextFluidScenario").onclick=()=>{fluidIndex=(fluidIndex+1)%lessonData.fluids.length;renderFluidScenario();setFeedback($("#fluidFeedback"),"Kies een vloeistofcategorie.");markProgress()};
+renderFluidScenario();
+
+// transfusion
+let transfIndex=0;
+function renderTransfusion(){
+  const sc=lessonData.transfusion[transfIndex];
+  $("#transfusionScenario").innerHTML=`<h3>Scenario ${transfIndex+1}</h3><p>${sc.scenario}</p>`;
+  $("#transfusionChoices").innerHTML="";
+  ["TRALI","Koortsreactie","Allergische reactie"].forEach(opt=>{
+    const b=document.createElement("button");b.className="btn";b.textContent=opt;
+    b.onclick=()=>setFeedback($("#transfusionFeedback"),(opt===sc.answer?"Juist. ":"Niet passend bij dit scenario. ")+sc.feedback,opt===sc.answer?"ok":"bad");
+    $("#transfusionChoices").appendChild(b);
+  });
+}
+$("#nextTransfusion").onclick=()=>{transfIndex=(transfIndex+1)%lessonData.transfusion.length;renderTransfusion();setFeedback($("#transfusionFeedback"),"Kies het meest passende begrip uit de bronles.");markProgress()};
+renderTransfusion();
+
+// final case
+let caseIndex=0, caseAnswered=false;
+function renderCase(){
+  const c=lessonData.finalCase[caseIndex];
+  $("#caseStage").innerHTML=`<h3>${c.title}</h3><p>${c.text}</p>`;
+  $("#caseChoices").innerHTML="";
+  c.options.forEach((opt,i)=>{
+    const b=document.createElement("button");b.className="btn";b.textContent=opt;
+    b.onclick=()=>{caseAnswered=i===c.correct;setFeedback($("#caseFeedback"),caseAnswered?"Juist. "+c.feedback:"Niet de beste redeneerstap. Probeer opnieuw.",caseAnswered?"ok":"bad");markProgress()};
+    $("#caseChoices").appendChild(b);
+  });
+}
+$("#nextCase").onclick=()=>{
+  if(!caseAnswered){setFeedback($("#caseFeedback"),"Beantwoord deze fase eerst correct voordat je doorgaat.","warn");return;}
+  if(caseIndex<lessonData.finalCase.length-1){caseIndex++;caseAnswered=false;renderCase();setFeedback($("#caseFeedback"),"Nieuwe fase: kies de volgende redeneerstap.");}
+  else setFeedback($("#caseFeedback"),"Eindcasus voltooid. Je hebt de volledige redeneercyclus doorlopen.","ok");
+};
+$("#resetCase").onclick=()=>{caseIndex=0;caseAnswered=false;renderCase();setFeedback($("#caseFeedback"),"Kies de volgende redeneerstap.")};
+renderCase();
+
+// summary
+$("#summaryTable").innerHTML="<thead><tr><th>Onderdeel</th><th>Bronwaarde / bronregel</th></tr></thead><tbody>"+lessonData.summary.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")+"</tbody>";
+</script>
+</body>
+</html>
